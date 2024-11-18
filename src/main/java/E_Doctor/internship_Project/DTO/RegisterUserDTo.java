@@ -1,5 +1,6 @@
 package E_Doctor.internship_Project.DTO;
 
+import jakarta.persistence.Column;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -12,7 +13,8 @@ public class RegisterUserDTo {
 	//add email field
     @NotBlank(message = "Email is required")
     @Email
-     private String email;
+    @Column(unique = true)
+    private String email;
 
     @NotBlank(message = "Username is required")
     @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
@@ -25,7 +27,7 @@ public class RegisterUserDTo {
     private String confirmPassword;
 
     @NotBlank(message = "Role is required")
-    @Pattern(regexp = "^(ADMIN|USER|DOCTOR)$", message = "Role can be USER or ADMIN or DOCTOR")
+    @Pattern(regexp = "^(USER|DOCTOR)$", message = "Role can be USER or DOCTOR")
     private String role;
 
 }

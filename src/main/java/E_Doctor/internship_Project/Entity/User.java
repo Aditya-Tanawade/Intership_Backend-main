@@ -18,13 +18,13 @@ import lombok.NoArgsConstructor;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(unique = true, nullable = false)
-    private String username;
+    private int id;
 
     @Column(nullable = false)
+    private String username;
+
     @Email
+    @Column(unique = true, nullable = false)
     private String email;
 
 
@@ -32,6 +32,8 @@ public class User {
 
 
     private String role;
+
+    private String otp;
     
 
 
