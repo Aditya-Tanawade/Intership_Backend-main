@@ -33,6 +33,8 @@ class AuthControllerTest {
 
     @Test
     void testLoadAdmins() {
+        // Arrange
+        // No behavior to mock as the method doesn't return dynamic results.
 
         // Act
         String result = authController.loadAdmins();
