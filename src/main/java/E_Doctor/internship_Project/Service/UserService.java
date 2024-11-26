@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,6 +30,9 @@ public class UserService implements UserDetailsService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private DoctorService doctorService;
 
 
     public void loadUsers() {
@@ -57,6 +62,8 @@ public class UserService implements UserDetailsService {
             return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
         }
 
+        doctorService.createDoctor(userDto);
+
         User user = new User();
         user.setUsername(userDto.getUsername());
         user.setPassword(passwordEncoder.encode(userDto.getPassword()));
@@ -74,7 +81,7 @@ public class UserService implements UserDetailsService {
 
 
     public Optional<User> findByEmail(String email) {
-        return userRepo.findByUsername(email);
+        return userRepo.findByEmail(email);
     }
 
 
@@ -87,17 +94,6 @@ public class UserService implements UserDetailsService {
         }
     }
 
-
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepo.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        return org.springframework.security.core.userdetails.User
-                .withUsername(user.getUsername())
-                .password(user.getPassword())
-                .roles(user.getRole())
-                .build();
-    }
 
     public boolean authenticate(String email, String password) {
         // Retrieve the user by username
@@ -139,6 +135,7 @@ public class UserService implements UserDetailsService {
                         .message("Admin login successful")
                         .build();
             case "DOCTOR":
+                doctorService.LoginDoctor(loginRequest);
                 return ApiError.builder()
                         .status(HttpStatus.OK)
                         .message("Doctor login successful")
@@ -154,7 +151,29 @@ public class UserService implements UserDetailsService {
                         .message("Unauthorized role")
                         .build();
         }
-
     }
+
+
+
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User user = userRepo.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+
+        return org.springframework.security.core.userdetails.User
+                .withUsername(user.getEmail())
+                .password(user.getPassword())
+                .roles(user.getRole())
+                .build();
+    }
+
+
+
+
+
+
+
 }
 

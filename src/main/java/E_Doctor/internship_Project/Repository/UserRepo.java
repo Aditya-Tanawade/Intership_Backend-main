@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepo extends JpaRepository<User,Integer> {
-   Optional<User> findByUsername(String username);
+
     
    
    Optional <User> findByEmail(String email);
@@ -18,5 +18,5 @@ public interface UserRepo extends JpaRepository<User,Integer> {
    @Query("SELECT u.role FROM User u WHERE u.email = :email")
    Optional<String> findRoleByEmail(@Param("email") String email);
 
-	
+
 }

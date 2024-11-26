@@ -5,8 +5,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -18,7 +20,7 @@ public class SecurityConfig {
 
     private final UserService userService;
 
-    private PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
     public SecurityConfig(UserService userService, PasswordEncoder passwordEncoder) {
         this.userService = userService;
@@ -31,27 +33,21 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
-                               
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .anyRequest().authenticated()
-                )
-                .logout(logout->logout
-                .logoutUrl("/api/auth/logout")
-                .logoutSuccessHandler(logoutSuccessHandler()) // Custom logout response
-                .invalidateHttpSession(true)
-                .deleteCookies("JSESSIONID")
-                .permitAll());
+
+                                .requestMatchers("/api/auth/**").permitAll()
+                                .requestMatchers("/api/doctor/**").permitAll() // Use 'hasAuthority' to skip the 'ROLE_' prefix
+                                .anyRequest().authenticated())
+                                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .logout(logout -> logout
+                                .logoutUrl("/logout")
+                                .logoutSuccessUrl("/api/auth/login?logout=true") // Redirect to login page after logout
+                                .invalidateHttpSession(true)
+                                .deleteCookies("JSESSIONID")
+        );
         return http.build();
+
     }
 
-    @Bean
-    public LogoutSuccessHandler logoutSuccessHandler() {
-        return (HttpServletRequest request, HttpServletResponse response, org.springframework.security.core.Authentication authentication) -> {
-            response.setStatus(HttpServletResponse.SC_OK);
-            response.setContentType("application/json");
-            response.getWriter().write("{\"message\": \"Logout successful\"}");
-        };
-    }
 
 
 }

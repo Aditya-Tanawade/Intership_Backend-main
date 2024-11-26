@@ -5,15 +5,16 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
-
+@AllArgsConstructor
+@NoArgsConstructor
 public class RegisterUserDTo {
 	
 	//add email field
     @NotBlank(message = "Email is required")
     @Email
-    @Column(unique = true)
     private String email;
 
     @NotBlank(message = "Username is required")

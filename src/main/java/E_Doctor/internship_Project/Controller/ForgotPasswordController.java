@@ -34,7 +34,6 @@ public class ForgotPasswordController {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        // Logic to generate and send OTP (simulating OTP)
         String otp = generateOtp();
         user.setOtp(otp);
         userRepository.save(user);
@@ -44,7 +43,7 @@ public class ForgotPasswordController {
         return ResponseEntity.ok("OTP sent to your email.");
     }
 
-    @PostMapping("/verify-email") // Change from @GetMapping to @PostMapping
+    @PostMapping("/verify-email")
     public ResponseEntity<String> verifyEmail(@RequestBody Map<String, String> requestBody) {
         String email = requestBody.get("email");
         String inputOtp = requestBody.get("otp");
@@ -55,7 +54,6 @@ public class ForgotPasswordController {
         System.out.println("Stored OTP: " + user.getOtp());
         System.out.println("Input OTP: " + inputOtp);
 
-        // Ensure the OTP comparison is done correctly
         if (user.getOtp().equals(inputOtp.trim())) {
             return ResponseEntity.status(HttpStatus.OK).body("OTP verified. Please set your new password.");
         } else {
@@ -72,7 +70,7 @@ public class ForgotPasswordController {
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         user.setPassword(passwordEncoder.encode(newPassword));
-        user.setOtp(null); // Clear OTP after successful password reset
+        user.setOtp(null);
         userRepository.save(user);
 
         return ResponseEntity.ok("Password reset successfully.");
